@@ -31,17 +31,16 @@ public class Main {
 					integer = new BigInteger(generateLongNumber(value));//Set the big int to a newly generated number
 					boolean isPrime = integer.isProbablePrime(Integer.MAX_VALUE);//Check if it is prime with a certanty of max integer
 
-					String text = integer + "\t|\t" + isPrime;//Create the output
+					String text = (counter + 1) + "\t|\t" + integer + "\t|\t" + isPrime;//Create the output
 
 					output(text);//Log it to file
 					counter++;//increment the counter
 
-					time = System.currentTimeMillis();//And set the time
 					completed = isPrime;//Set completed to if it is prime
 				}
-
 				output("\nEnd.\n");
 				int characterCount = integer.toString().length();
+				time = System.currentTimeMillis();//And set the time
 				output("[Gen] It took " + counter + " attempts to find a prime number under " + value + " that prime number was: " + integer + " (" + characterCount + " chars this " + (characterCount == value ? "does" : "does not") + " equal the requested value of " + value + " this is " + (characterCount == value ? "good" : "bad") + ") and it took approximatly " + ((time - startTime) / 1000) + " seconds (" + (time - startTime) + " millis)");
 			} else {
 				System.err.println("First arguemnt must be an integer");
