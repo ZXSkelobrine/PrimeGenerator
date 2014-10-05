@@ -38,48 +38,48 @@ public class Main {
 
 					completed = isPrime;//Set completed to if it is prime
 				}
-				output("\nEnd.\n");
-				int characterCount = integer.toString().length();
+				output("\nEnd.\n");//Output the end message
+				int characterCount = integer.toString().length();//Get the character count
 				time = System.currentTimeMillis();//And set the time
 				output("[Gen] It took " + counter + " attempts to find a prime number under " + value + " that prime number was: " + integer + " (" + characterCount + " chars this " + (characterCount == value ? "does" : "does not") + " equal the requested value of " + value + " this is " + (characterCount == value ? "good" : "bad") + ") and it took approximatly " + ((time - startTime) / 1000) + " seconds (" + (time - startTime) + " millis)");
 			} else {
-				System.err.println("First arguemnt must be an integer");
+				System.err.println("First arguemnt must be an integer");//If the number cannot be cast then tell the user that they did it wrong. Silly users. Always getting things wrong.
 			}
 		} else {
-			System.err.println("Must have one argument");
+			System.err.println("Must have one argument");//If there are no arguments then tell the user that they did it wrong. Always doing things wrong *shakes head*
 		}
 	}
 
 	static Random random = new Random();
 
 	public static String generateLongNumber(int length) {
-		StringBuilder builder = new StringBuilder();
-		for (int i = 0; i != length; i++) {
-			builder.append(random.nextInt(9) + 1);
+		StringBuilder builder = new StringBuilder();//Create a string builder for forming the number
+		for (int i = 0; i != length; i++) {//Until i equals the length
+			builder.append(random.nextInt(9) + 1);//Append a new random number 1-9
 		}
-		return builder.toString();
+		return builder.toString();//Then reurn the string version of the number
 	}
 
 	static File output = new File("Outputs/" + new SimpleDateFormat().format(Calendar.getInstance().getTime()).replace('/', '-').replace(':', '-') + ".txt");
 	static PrintWriter writer;
 
 	public static void output(String text) throws IOException {
-		if (writer == null) {
-			if (!output.exists())
-				output.createNewFile();
-			writer = new PrintWriter(output);
+		if (writer == null) {//if the writer is null
+			if (!output.exists())//If the file does not exist
+				output.createNewFile();//Create the file
+			writer = new PrintWriter(output);//Form the output stream
 		}
-		writer.println(text);
-		writer.flush();
-		System.out.println(text);
+		writer.println(text);//Print the text
+		writer.flush();//Flush
+		System.out.println(text);//And output it
 	}
 
 	public static boolean parseable(String s) {
-		try {
-			Integer.parseInt(s);
-			return true;
-		} catch (NumberFormatException e) {
-			return false;
+		try {//Try to 
+			Integer.parseInt(s);//Parse the int
+			return true;//And return true
+		} catch (NumberFormatException e) {//If it does not work
+			return false;//Return false
 		}
 	}
 }
