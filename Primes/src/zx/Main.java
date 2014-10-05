@@ -12,7 +12,7 @@ import java.util.Random;
 public class Main {
 
 	public static void main(String[] args) throws IOException {
-		int value = 23;//Then amount of digits
+		int value = 500;//Then amount of digits
 		int counter = 0;//The amount of attempts
 
 		long startTime = System.currentTimeMillis();//When it started
@@ -39,15 +39,16 @@ public class Main {
 		}
 
 		output("\nEnd.\n");
-		output("[Gen] It took " + counter + " attempts to find a prime number under " + value + " that prime number was: " + integer + " and it took " + ((time - startTime) / 1000) + " seconds (" + (time - startTime) + " millis)");
+		int characterCount = integer.toString().length();
+		output("[Gen] It took " + counter + " attempts to find a prime number under " + value + " that prime number was: " + integer + " (" + characterCount + " chars this " + (characterCount == value ? "does" : "does not") + " equal the requested value of " + value + " this is " + (characterCount == value ? "good" : "bad") + ") and it took approximatly " + ((time - startTime) / 1000) + " seconds (" + (time - startTime) + " millis)");
 	}
 
 	static Random random = new Random();
 
 	public static String generateLongNumber(int length) {
 		StringBuilder builder = new StringBuilder();
-		for (int i = 0; i < length; i++) {
-			builder.append(random.nextInt(10));
+		for (int i = 0; i != length; i++) {
+			builder.append(random.nextInt(9) + 1);
 		}
 		return builder.toString();
 	}
