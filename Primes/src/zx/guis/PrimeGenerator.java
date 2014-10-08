@@ -3,14 +3,12 @@ package zx.guis;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.math.BigInteger;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Random;
 
-import javax.swing.JTextField;
 import javax.swing.text.JTextComponent;
 
 import zx.enums.LogType;
@@ -39,20 +37,24 @@ public class PrimeGenerator {
 	 */
 	private int generations;
 	/**
-	 * This stores the amount of attempts it took to generate one prime number 
+	 * This stores the amount of attempts it took to generate one prime number
 	 */
 	private int localCounter;
 	/**
-	 * This stores the amount of attempts it took to generate all the prime numbers
+	 * This stores the amount of attempts it took to generate all the prime
+	 * numbers
 	 */
 	private int globalCounter;
+	private int currentPrimeSearch;
 
 	/**
 	 * This stores whether the current number being processed is prime.
 	 */
 	private boolean isCurrentPrime;
 	/**
-	 * This stores whether callback to the starting class is enabled. This is currently deprecated as the calling function does not work
+	 * This stores whether callback to the starting class is enabled. This is
+	 * currently deprecated as the calling function does not work
+	 * 
 	 * @deprecated
 	 */
 	private boolean isCallbackEnabled;
@@ -60,12 +62,16 @@ public class PrimeGenerator {
 	 * This stores whether the program should log to a file.
 	 */
 	private boolean isFileLogEnabled;
+	private boolean isCanceled;
+
 	/**
-	 * This stores whether the program should log to three {@link JTextComponent}s.
+	 * This array stores whether the program should log to 5
+	 * {@link JTextComponent}s.
 	 */
-	private boolean isTxtLogEnabled;
+	private boolean[] isTxtLogEnabled = new boolean[5];
 	/**
-	 * This stores whether the program should output a begin message including the username.
+	 * This stores whether the program should output a begin message including
+	 * the username.
 	 */
 	private boolean isBeginEnabled = true;
 
@@ -92,7 +98,7 @@ public class PrimeGenerator {
 	 * This is the print writer that the program will be writing out to.
 	 */
 	private PrintWriter outputWriter;
-	
+
 	/**
 	 * This is the logging area used for all general log message
 	 */
@@ -104,7 +110,9 @@ public class PrimeGenerator {
 	/**
 	 * This is the logging area used for the counter output
 	 */
-	private JTextComponent logCounter;
+	private JTextComponent logLocalCounter;
+	private JTextComponent logGlobalCounter;
+	private JTextComponent logCurrentPrime;
 
 	public PrimeGenerator(int length, int amount, Random random, Class<?> generatorCallbackClass, Method generatorCallback, String callbackArgumentFormat, Class<?>[] callbackArgumentTypes) {
 		this.random = random;
@@ -159,31 +167,52 @@ public class PrimeGenerator {
 	}
 
 	/**
-	 * This will set the {@link JTextComponent} fields that the program logs to and enable the logging system.
-	 * @param field - The general logging field
-	 * @param logPrime - The prime number logging field
-	 * @param logAmount - The counter logging field
+	 * This will set the {@link JTextComponent} fields that the program logs to
+	 * and enable the logging system.
+	 * 
+	 * @param logMain
+	 *            - The general logging field
+	 * @param logPrime
+	 *            - The prime number logging field
+	 * @param logLocalAttempts
+	 *            - The counter logging field
 	 */
-	public void setLogOutput(JTextComponent field, JTextComponent logPrime, JTextComponent logAmount) {
-		this.logArea = field;
-		this.logCounter = logAmount;
-		this.logPrime = logPrime;
-		this.isTxtLogEnabled = true;
+	public void setLogOutput(JTextComponent logMain, JTextComponent logPrime, JTextComponent logLocalAttempts, JTextComponent logGlobalAttempts, JTextComponent logCurrentPrimeSearch) {
+		if (logMain != null) {
+			this.logArea = logMain;
+			isTxtLogEnabled[0] = true;
+		}
+		if (logLocalAttempts != null) {
+			this.logLocalCounter = logLocalAttempts;
+			isTxtLogEnabled[1] = true;
+		}
+		if (logPrime != null) {
+			this.logPrime = logPrime;
+			isTxtLogEnabled[2] = true;
+		}
+		if (logGlobalAttempts != null) {
+			this.logGlobalCounter = logGlobalAttempts;
+			isTxtLogEnabled[3] = true;
+		}
+		if (logCurrentPrimeSearch != null) {
+			this.logCurrentPrime = logCurrentPrimeSearch;
+			isTxtLogEnabled[4] = true;
+		}
 	}
 
 	/**
 	 * This will set the file output and enable the file logging system
-	 * @param file - The file to log to.
+	 * 
+	 * @param file
+	 *            - The file to log to.
 	 */
 	public void setFile(File file) {
 		try {
 			File parent = file.getParentFile();
 			if (parent != null) {
-				if (!parent.exists())
-					parent.mkdirs();
+				if (!parent.exists()) parent.mkdirs();
 			}
-			if (!file.exists())
-				file.createNewFile();
+			if (!file.exists()) file.createNewFile();
 			outputFile = file;
 			outputWriter = new PrintWriter(file);
 			isFileLogEnabled = true;
@@ -192,24 +221,31 @@ public class PrimeGenerator {
 		}
 	}
 
+	public void cancelSearch() {
+		isCanceled = true;
+	}
+
 	/**
 	 * This will start the loop to find the prime numbers
 	 */
 	public void startPrimeLoop() {
 		this.startTime = System.currentTimeMillis();
+		this.isCanceled = false;
 		log(LogType.BEGIN);
 		for (int i = 0; i != generations; i++) {
 			localCounter = 0;
 			isCurrentPrime = false;
 			currentNumber = null;
-			while (!isCurrentPrime) {
+			while (!isCurrentPrime && !isCanceled) {
 				localCounter++;
+				globalCounter++;
 				currentNumber = new BigInteger(generateRandomNumber());
 				testPrime();
 				log(LogType.TYRS);
 			}
-			globalCounter += localCounter;
+			currentPrimeSearch++;
 			log(LogType.SEMI);
+			if (isCanceled) break;
 		}
 		finalEndTime = System.currentTimeMillis();
 		log(LogType.FULL);
@@ -224,7 +260,9 @@ public class PrimeGenerator {
 
 	/**
 	 * This will output a log message
-	 * @param logType - Where the message is coming from
+	 * 
+	 * @param logType
+	 *            - Where the message is coming from
 	 */
 	private void log(LogType logType) {
 		fileLog(logType);
@@ -233,8 +271,11 @@ public class PrimeGenerator {
 	}
 
 	/**
-	 * This will attempt to log the the file but it the system is disabled it will just call {@link #stdOutLog(LogType)}.
-	 * @param logType - Where the message is coming from
+	 * This will attempt to log the the file but it the system is disabled it
+	 * will just call {@link #stdOutLog(LogType)}.
+	 * 
+	 * @param logType
+	 *            - Where the message is coming from
 	 */
 	private void fileLog(LogType logType) {
 		if (isFileLogEnabled) {
@@ -249,8 +290,7 @@ public class PrimeGenerator {
 				writeToFile(generateTryMessage());
 				break;
 			case BEGIN:
-				if (isBeginEnabled)
-					writeToFile(generateBeginMessage());
+				if (isBeginEnabled) writeToFile(generateBeginMessage());
 			default:
 				break;
 			}
@@ -261,7 +301,9 @@ public class PrimeGenerator {
 
 	/**
 	 * This will attempt to log a message to the standard output
-	 * @param logType - Where the message is coming from
+	 * 
+	 * @param logType
+	 *            - Where the message is coming from
 	 */
 	private void stdOutLog(LogType logType) {
 		switch (logType) {
@@ -275,8 +317,7 @@ public class PrimeGenerator {
 			writeToStdOut(generateTryMessage());
 			break;
 		case BEGIN:
-			if (isBeginEnabled)
-				writeToStdOut(generateBeginMessage());
+			if (isBeginEnabled) writeToStdOut(generateBeginMessage());
 		default:
 			break;
 		}
@@ -304,30 +345,41 @@ public class PrimeGenerator {
 
 	/**
 	 * This will attempt to log to the text fields
-	 * @param logType - Where the message is coming from.
+	 * 
+	 * @param logType
+	 *            - Where the message is coming from.
 	 */
 	private void txtLog(LogType logType) {
 		switch (logType) {
 		case FULL:
-			logArea.setText(logArea.getText() + generateFinalMessage() + "\n");
-			logPrime.setText(currentNumber.toString());
-			logCounter.setText("" + globalCounter);
+			if (isTxtLogEnabled[0]) logArea.setText(logArea.getText() + generateFinalMessage() + "\n");
+			//PRIME
+			if (isTxtLogEnabled[2]) logLocalCounter.setText("" + localCounter);
+			if (isTxtLogEnabled[3]) logGlobalCounter.setText("" + globalCounter);
+			//CURRENT PRIME
 			break;
 		case SEMI:
-			logArea.setText(logArea.getText() + generateSemiFinalMessage() + "\n");
-			logPrime.setText(currentNumber.toString());
-			logCounter.setText("" + localCounter);
+			if (isTxtLogEnabled[0]) logArea.setText(logArea.getText() + generateSemiFinalMessage() + "\n");
+			if (isTxtLogEnabled[1]) logPrime.setText(currentNumber.toString());
+			if (isTxtLogEnabled[2]) logLocalCounter.setText("" + localCounter);
+			if (isTxtLogEnabled[3]) logGlobalCounter.setText("" + globalCounter);
+			if (isTxtLogEnabled[4]) logCurrentPrime.setText("" + currentPrimeSearch);
 			break;
 		case TYRS:
-			logArea.setText(logArea.getText() + generateTryMessage() + "\n");
+			if (isTxtLogEnabled[0]) logArea.setText(logArea.getText() + generateTryMessage() + "\n");
+			//PRIME
+			if (isTxtLogEnabled[2]) logLocalCounter.setText("" + localCounter);
+			if (isTxtLogEnabled[3]) logGlobalCounter.setText("" + globalCounter);
+			//CURRENT PRIME
 			break;
 		case BEGIN:
-			logArea.setText(logArea.getText() + generateBeginMessage() + "\n");
+			if (isTxtLogEnabled[0]) logArea.setText(logArea.getText() + generateBeginMessage() + "\n");
+			if (isTxtLogEnabled[4]) logCurrentPrime.setText("" + currentPrimeSearch);
 			break;
 		default:
 			break;
 		}
-		logArea.setCaretPosition(logArea.getText().length());
+		if (isTxtLogEnabled[0]) logArea.setCaretPosition(logArea.getText().length());
 	}
 
 	private String generateBeginMessage() {
@@ -337,12 +389,9 @@ public class PrimeGenerator {
 	private String generateTryMessage() {
 		int chount = currentNumber.toString().length();
 		String extension = "th";
-		if (localCounter == 1)
-			extension = "st";
-		if (localCounter == 2)
-			extension = "nd";
-		if (localCounter == 3)
-			extension = "rd";
+		if (localCounter == 1) extension = "st";
+		if (localCounter == 2) extension = "nd";
+		if (localCounter == 3) extension = "rd";
 		return "[Gen - TRYS] This is the " + localCounter + extension + " attempt to find a prime number with " + length + " digits. The current number is: " + currentNumber + " (This number is " + chount + " characters long. This is a " + (chount == length ? "good" : "bad") + " result). This number " + (isCurrentPrime ? "IS" : "IS NOT") + " a prime number.";
 	}
 
@@ -357,9 +406,10 @@ public class PrimeGenerator {
 
 	private String generateRandomNumber() {
 		StringBuilder builder = new StringBuilder();//Create a string builder for forming the number
-		for (int i = 0; i != length; i++) {//Until i equals the length
+		for (int i = 0; i != (length - 1); i++) {//Until i equals the length
 			builder.append(random.nextInt(9) + 1);//Append a new random number 1-9
 		}
+		builder.append(generatePsudorandomOddNumber());
 		return builder.toString();//Then return the string version of the number
 	}
 
@@ -421,6 +471,7 @@ public class PrimeGenerator {
 		callback_arguments = returned;
 	}
 
+	@Deprecated
 	private void callbackToCaller() {
 		//		try {
 		//			callback_method.invoke(callback_arguments, callback_classes);
@@ -437,6 +488,374 @@ public class PrimeGenerator {
 
 	private void writeToStdOut(String message) {
 		System.out.println(message);
+	}
+
+	private int generatePsudorandomOddNumber() {
+		int value = 0;
+		while (value % 2 == 0) {
+			value = random.nextInt(9) + 1;
+		}
+		return value;
+	}
+
+	/**
+	 * @return the currentTime
+	 */
+	public long getCurrentTime() {
+		return currentTime;
+	}
+
+	/**
+	 * @param currentTime
+	 *            the currentTime to set
+	 */
+	public void setCurrentTime(long currentTime) {
+		this.currentTime = currentTime;
+	}
+
+	/**
+	 * @return the finalEndTime
+	 */
+	public long getFinalEndTime() {
+		return finalEndTime;
+	}
+
+	/**
+	 * @param finalEndTime
+	 *            the finalEndTime to set
+	 */
+	public void setFinalEndTime(long finalEndTime) {
+		this.finalEndTime = finalEndTime;
+	}
+
+	/**
+	 * @return the startTime
+	 */
+	public long getStartTime() {
+		return startTime;
+	}
+
+	/**
+	 * @param startTime
+	 *            the startTime to set
+	 */
+	public void setStartTime(long startTime) {
+		this.startTime = startTime;
+	}
+
+	/**
+	 * @return the length
+	 */
+	public int getLength() {
+		return length;
+	}
+
+	/**
+	 * @param length
+	 *            the length to set
+	 */
+	public void setLength(int length) {
+		this.length = length;
+	}
+
+	/**
+	 * @return the generations
+	 */
+	public int getGenerations() {
+		return generations;
+	}
+
+	/**
+	 * @param generations
+	 *            the generations to set
+	 */
+	public void setGenerations(int generations) {
+		this.generations = generations;
+	}
+
+	/**
+	 * @return the localCounter
+	 */
+	public int getLocalCounter() {
+		return localCounter;
+	}
+
+	/**
+	 * @param localCounter
+	 *            the localCounter to set
+	 */
+	public void setLocalCounter(int localCounter) {
+		this.localCounter = localCounter;
+	}
+
+	/**
+	 * @return the globalCounter
+	 */
+	public int getGlobalCounter() {
+		return globalCounter;
+	}
+
+	/**
+	 * @param globalCounter
+	 *            the globalCounter to set
+	 */
+	public void setGlobalCounter(int globalCounter) {
+		this.globalCounter = globalCounter;
+	}
+
+	/**
+	 * @return the isCurrentPrime
+	 */
+	public boolean isCurrentPrime() {
+		return isCurrentPrime;
+	}
+
+	/**
+	 * @param isCurrentPrime
+	 *            the isCurrentPrime to set
+	 */
+	public void setCurrentPrime(boolean isCurrentPrime) {
+		this.isCurrentPrime = isCurrentPrime;
+	}
+
+	/**
+	 * @return the isCallbackEnabled
+	 */
+	public boolean isCallbackEnabled() {
+		return isCallbackEnabled;
+	}
+
+	/**
+	 * @param isCallbackEnabled
+	 *            the isCallbackEnabled to set
+	 */
+	public void setCallbackEnabled(boolean isCallbackEnabled) {
+		this.isCallbackEnabled = isCallbackEnabled;
+	}
+
+	/**
+	 * @return the isFileLogEnabled
+	 */
+	public boolean isFileLogEnabled() {
+		return isFileLogEnabled;
+	}
+
+	/**
+	 * @param isFileLogEnabled
+	 *            the isFileLogEnabled to set
+	 */
+	public void setFileLogEnabled(boolean isFileLogEnabled) {
+		this.isFileLogEnabled = isFileLogEnabled;
+	}
+
+	/**
+	 * @return the isTxtLogEnabled
+	 */
+	public boolean[] isTxtLogEnabled() {
+		return isTxtLogEnabled;
+	}
+
+	/**
+	 * @param isTxtLogEnabled
+	 *            the isTxtLogEnabled to set
+	 */
+	public void setTxtLogEnabled(boolean isTxtLogEnabled[]) {
+		this.isTxtLogEnabled = isTxtLogEnabled;
+	}
+
+	/**
+	 * @return the isBeginEnabled
+	 */
+	public boolean isBeginEnabled() {
+		return isBeginEnabled;
+	}
+
+	/**
+	 * @param isBeginEnabled
+	 *            the isBeginEnabled to set
+	 */
+	public void setBeginEnabled(boolean isBeginEnabled) {
+		this.isBeginEnabled = isBeginEnabled;
+	}
+
+	/**
+	 * @return the callback_class
+	 */
+	public Class<?> getCallback_class() {
+		return callback_class;
+	}
+
+	/**
+	 * @param callback_class
+	 *            the callback_class to set
+	 */
+	public void setCallback_class(Class<?> callback_class) {
+		this.callback_class = callback_class;
+	}
+
+	/**
+	 * @return the callback_format
+	 */
+	public String getCallback_format() {
+		return callback_format;
+	}
+
+	/**
+	 * @param callback_format
+	 *            the callback_format to set
+	 */
+	public void setCallback_format(String callback_format) {
+		this.callback_format = callback_format;
+	}
+
+	/**
+	 * @return the callback_method
+	 */
+	public Method getCallback_method() {
+		return callback_method;
+	}
+
+	/**
+	 * @param callback_method
+	 *            the callback_method to set
+	 */
+	public void setCallback_method(Method callback_method) {
+		this.callback_method = callback_method;
+	}
+
+	/**
+	 * @return the callback_arguments
+	 */
+	public Object[] getCallback_arguments() {
+		return callback_arguments;
+	}
+
+	/**
+	 * @param callback_arguments
+	 *            the callback_arguments to set
+	 */
+	public void setCallback_arguments(Object[] callback_arguments) {
+		this.callback_arguments = callback_arguments;
+	}
+
+	/**
+	 * @return the callback_classes
+	 */
+	public Class<?>[] getCallback_classes() {
+		return callback_classes;
+	}
+
+	/**
+	 * @param callback_classes
+	 *            the callback_classes to set
+	 */
+	public void setCallback_classes(Class<?>[] callback_classes) {
+		this.callback_classes = callback_classes;
+	}
+
+	/**
+	 * @return the random
+	 */
+	public Random getRandom() {
+		return random;
+	}
+
+	/**
+	 * @param random
+	 *            the random to set
+	 */
+	public void setRandom(Random random) {
+		this.random = random;
+	}
+
+	/**
+	 * @return the currentNumber
+	 */
+	public BigInteger getCurrentNumber() {
+		return currentNumber;
+	}
+
+	/**
+	 * @param currentNumber
+	 *            the currentNumber to set
+	 */
+	public void setCurrentNumber(BigInteger currentNumber) {
+		this.currentNumber = currentNumber;
+	}
+
+	/**
+	 * @return the outputFile
+	 */
+	public File getOutputFile() {
+		return outputFile;
+	}
+
+	/**
+	 * @param outputFile
+	 *            the outputFile to set
+	 */
+	public void setOutputFile(File outputFile) {
+		this.outputFile = outputFile;
+	}
+
+	/**
+	 * @return the outputWriter
+	 */
+	public PrintWriter getOutputWriter() {
+		return outputWriter;
+	}
+
+	/**
+	 * @param outputWriter
+	 *            the outputWriter to set
+	 */
+	public void setOutputWriter(PrintWriter outputWriter) {
+		this.outputWriter = outputWriter;
+	}
+
+	/**
+	 * @return the logArea
+	 */
+	public JTextComponent getLogArea() {
+		return logArea;
+	}
+
+	/**
+	 * @param logArea
+	 *            the logArea to set
+	 */
+	public void setLogArea(JTextComponent logArea) {
+		this.logArea = logArea;
+	}
+
+	/**
+	 * @return the logPrime
+	 */
+	public JTextComponent getLogPrime() {
+		return logPrime;
+	}
+
+	/**
+	 * @param logPrime
+	 *            the logPrime to set
+	 */
+	public void setLogPrime(JTextComponent logPrime) {
+		this.logPrime = logPrime;
+	}
+
+	/**
+	 * @return the logCounter
+	 */
+	public JTextComponent getLogCounter() {
+		return logLocalCounter;
+	}
+
+	/**
+	 * @param logCounter
+	 *            the logCounter to set
+	 */
+	public void setLogCounter(JTextComponent logCounter) {
+		this.logLocalCounter = logCounter;
 	}
 
 }
