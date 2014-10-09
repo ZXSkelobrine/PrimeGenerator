@@ -13,6 +13,15 @@ import javax.swing.text.JTextComponent;
 
 import zx.enums.LogType;
 
+/**
+ * This is the object used to generate the prime number. It comes will a lot (<a
+ * href=
+ * "http://thewritepractice.com/wp-content/uploads/2012/05/Alot-vs-a-lot1-600x450.png"
+ * >Alot</a> more features so it looks quite bloated.
+ * 
+ * @author ryan
+ * 
+ */
 public class PrimeGenerator {
 
 	/**
@@ -114,6 +123,26 @@ public class PrimeGenerator {
 	private JTextComponent logGlobalCounter;
 	private JTextComponent logCurrentPrime;
 
+	/**
+	 * This will spawn a Prime generator with the given length and amount. It
+	 * will use the given random so seeds can be used. It also takes 4 arguments
+	 * relating to the callback system that is currently disabled.
+	 * 
+	 * @param length
+	 *            - The length of the prime number
+	 * @param amount
+	 *            - The amount of primes to generate
+	 * @param random
+	 *            - The random object to use
+	 * @param generatorCallbackClass
+	 *            - The class to call back to
+	 * @param generatorCallback
+	 *            - The method to call back
+	 * @param callbackArgumentFormat
+	 *            - The format of the aguments
+	 * @param callbackArgumentTypes
+	 *            - The class list of arguments
+	 */
 	public PrimeGenerator(int length, int amount, Random random, Class<?> generatorCallbackClass, Method generatorCallback, String callbackArgumentFormat, Class<?>[] callbackArgumentTypes) {
 		this.random = random;
 		this.length = length;
@@ -126,6 +155,24 @@ public class PrimeGenerator {
 		this.isCallbackEnabled = true;
 	}
 
+	/**
+	 * This will spawn a Prime generator with the given length. It
+	 * will use the given random so seeds can be used. It also takes 4 arguments
+	 * relating to the callback system that is currently disabled.
+	 * 
+	 * @param length
+	 *            - The length of the prime number
+	 * @param random
+	 *            - The random object to use
+	 * @param generatorCallbackClass
+	 *            - The class to call back to
+	 * @param generatorCallback
+	 *            - The method to call back
+	 * @param callbackArgumentFormat
+	 *            - The format of the aguments
+	 * @param callbackArgumentTypes
+	 *            - The class list of arguments
+	 */
 	public PrimeGenerator(int length, Random random, Class<?> generatorCallbackClass, Method generatorCallback, String callbackArgumentFormat, Class<?>[] callbackArgumentTypes) {
 		this.random = random;
 		this.length = length;
@@ -138,6 +185,17 @@ public class PrimeGenerator {
 		this.isCallbackEnabled = true;
 	}
 
+	/**
+	 * This will spawn a Prime generator with the given length and amount. It
+	 * will use the given random so seeds can be used.
+	 * 
+	 * @param length
+	 *            - The length of the prime number
+	 * @param amount
+	 *            - The amount of primes to generate
+	 * @param random
+	 *            - The random object to use
+	 */
 	public PrimeGenerator(int length, int amount, Random random) {
 		this.random = random;
 		this.generations = amount;
@@ -145,6 +203,15 @@ public class PrimeGenerator {
 		this.isCallbackEnabled = false;
 	}
 
+	/**
+	 * This will spawn a Prime generator with the given length. It
+	 * will use the given random so seeds can be used.
+	 * 
+	 * @param length
+	 *            - The length of the prime number
+	 * @param random
+	 *            - The random object to use
+	 */
 	public PrimeGenerator(int length, Random random) {
 		this.random = random;
 		this.length = length;
@@ -152,6 +219,14 @@ public class PrimeGenerator {
 		this.isCallbackEnabled = false;
 	}
 
+	/**
+	 * This will spawn a Prime generator with the given length and amount.
+	 * 
+	 * @param length
+	 *            - The length of the prime number
+	 * @param amount
+	 *            - The amount of primes to generate
+	 */
 	public PrimeGenerator(int length, int amount) {
 		this.random = new Random();
 		this.length = length;
@@ -159,6 +234,12 @@ public class PrimeGenerator {
 		this.isCallbackEnabled = false;
 	}
 
+	/**
+	 * This will spawn a Prime generator with the given length.
+	 * 
+	 * @param length
+	 *            - The length of the prime number
+	 */
 	public PrimeGenerator(int length) {
 		this.random = new Random();
 		this.length = length;
@@ -176,6 +257,11 @@ public class PrimeGenerator {
 	 *            - The prime number logging field
 	 * @param logLocalAttempts
 	 *            - The counter logging field
+	 * @param logGlobalAttempts
+	 *            - This is the field to log the global attempts to
+	 * @param logCurrentPrimeSearch
+	 *            - This is the field to log the current prime being searched
+	 *            for to.
 	 */
 	public void setLogOutput(JTextComponent logMain, JTextComponent logPrime, JTextComponent logLocalAttempts, JTextComponent logGlobalAttempts, JTextComponent logCurrentPrimeSearch) {
 		if (logMain != null) {
@@ -221,6 +307,9 @@ public class PrimeGenerator {
 		}
 	}
 
+	/**
+	 * This will cancel the search for a prime.
+	 */
 	public void cancelSearch() {
 		isCanceled = true;
 	}

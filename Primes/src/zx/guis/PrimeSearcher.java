@@ -15,6 +15,11 @@ import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 import javax.swing.text.JTextComponent;
 
+/**
+ * This is the window used to actually display the prime search and the subsequent results.
+ * @author ryan
+ *
+ */
 public class PrimeSearcher extends JFrame implements WindowListener {
 
 	private static final long serialVersionUID = -925448249482542622L;
@@ -43,6 +48,13 @@ public class PrimeSearcher extends JFrame implements WindowListener {
 
 	/**
 	 * Create the frame.
+	 * 
+	 * @param primeThread
+	 *            - This is the thread the prime is being searched for in.
+	 * @param digits
+	 *            - The amount of digits it is searching for
+	 * @param amount
+	 *            - The amount of primes it is searching for
 	 */
 	public PrimeSearcher(Thread primeThread, int digits, int amount) {
 		this.primeThread = primeThread;
@@ -184,11 +196,18 @@ public class PrimeSearcher extends JFrame implements WindowListener {
 		contentPane.add(txtPrime, gbc_txtPrime);
 		txtPrime.setColumns(10);
 	}
-
+	
+	/**
+	 * This method will display the window to the end user
+	 */
 	public void openWindow() {
 		setVisible(true);
 	}
 
+	/**
+	 * This method will return an array of the log fields in the correct order
+	 * @return {@link JTextComponent}[4] - An array of the log fields
+	 */
 	public JTextComponent[] getOrderedLogFields() {
 		return new JTextComponent[] { txtarLog, txtPrime, txtAttempts, txtGblAttempts, txtCurrent };
 	}

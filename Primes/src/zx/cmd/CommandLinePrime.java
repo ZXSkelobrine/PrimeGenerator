@@ -8,8 +8,22 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Random;
 
+/**
+ * This is the command line version of this program
+ * 
+ * @author ryan
+ * 
+ */
 public class CommandLinePrime {
 
+	/**
+	 * The programs main method when it is executed.
+	 * 
+	 * @param args
+	 *            - The parameters given to the java command
+	 * @throws IOException
+	 *             - If there is an error when logging to file.
+	 */
 	public static void main(String[] args) throws IOException {
 		if (args.length == 2) {
 			if (parseable(args[0]) && parseable(args[1])) {
@@ -24,6 +38,14 @@ public class CommandLinePrime {
 		}
 	}
 
+	/**
+	 * This method will calculate a prime at the given length.
+	 * 
+	 * @param value
+	 *            - The length
+	 * @throws IOException
+	 *             - If logging to file fails.
+	 */
 	public static void calculatePrime(int value) throws IOException {
 		int counter = 0;//The amount of attempts
 
@@ -54,8 +76,20 @@ public class CommandLinePrime {
 		output("[Gen] It took " + counter + " attempts to find a prime number under " + value + " that prime number was: " + integer + " (" + characterCount + " chars this " + (characterCount == value ? "does" : "does not") + " equal the requested value of " + value + " this is " + (characterCount == value ? "good" : "bad") + ") and it took approximatly " + ((time - startTime) / 1000) + " seconds (" + (time - startTime) + " millis)");
 	}
 
-	static Random random = new Random();
+	/**
+	 * This is the random object used to generate the numbers.
+	 */
+	private static Random random = new Random();
 
+	/**
+	 * This method will return a number in string form that is the given length
+	 * long
+	 * 
+	 * @param length
+	 *            - The length of the number
+	 * @return {@link String} - A number in string form that is the given length
+	 *         long.
+	 */
 	public static String generateLongNumber(int length) {
 		StringBuilder builder = new StringBuilder();//Create a string builder for forming the number
 		for (int i = 0; i != length; i++) {//Until i equals the length
@@ -64,12 +98,26 @@ public class CommandLinePrime {
 		return builder.toString();//Then reurn the string version of the number
 	}
 
-	static File output = new File("Outputs/" + new SimpleDateFormat().format(Calendar.getInstance().getTime()).replace('/', '-').replace(':', '-') + ".txt");
-	static PrintWriter writer;
+	/**
+	 * This is the file that is being used to output the prime search log
+	 */
+	private static File output = new File("Outputs/" + new SimpleDateFormat().format(Calendar.getInstance().getTime()).replace('/', '-').replace(':', '-') + ".txt");
+	/**
+	 * This is the print writer being used to write to the file.
+	 */
+	private static PrintWriter writer;
 
+	/**
+	 * THis method will print the given message to a file.
+	 * 
+	 * @param text
+	 *            - The text to output
+	 * @throws IOException
+	 *             - If logging to the file fails.
+	 */
 	public static void output(String text) throws IOException {
 		if (writer == null) {//if the writer is null
-			if (!output.exists())//If the file does not exist
+			if (!output.exists()) //If the file does not exist
 				output.createNewFile();//Create the file
 			writer = new PrintWriter(output);//Form the output stream
 		}
@@ -78,6 +126,15 @@ public class CommandLinePrime {
 		System.out.println(text);//And output it
 	}
 
+	/**
+	 * This method will check if a string is able to be parsed using
+	 * {@link Integer#parseInt(String)}.
+	 * 
+	 * @param s
+	 *            - The string to test
+	 * @return {@link Boolean}[In primative form] - If the given string can be
+	 *         parsed as an integer
+	 */
 	public static boolean parseable(String s) {
 		try {//Try to 
 			Integer.parseInt(s);//Parse the int

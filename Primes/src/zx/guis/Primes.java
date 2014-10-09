@@ -19,6 +19,12 @@ import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 import javax.swing.text.JTextComponent;
 
+/**
+ * This is the GUI used to start off the prime search
+ * 
+ * @author ryan
+ * 
+ */
 public class Primes extends JFrame {
 
 	private static final long serialVersionUID = -4007972896640238192L;
@@ -38,6 +44,9 @@ public class Primes extends JFrame {
 
 	/**
 	 * Launch the application.
+	 * 
+	 * @param args
+	 *            - These are the command line arguments
 	 */
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
@@ -157,6 +166,15 @@ public class Primes extends JFrame {
 		contentPane.add(btnNewButton, gbc_btnNewButton);
 	}
 
+	/**
+	 * This method will check if a string is able to be parsed using
+	 * {@link Integer#parseInt(String)}.
+	 * 
+	 * @param s
+	 *            - The string to test
+	 * @return {@link Boolean}[In primative form] - If the given string can be
+	 *         parsed as an integer
+	 */
 	public static boolean parseable(String s) {
 		try {//Try to 
 			Integer.parseInt(s);//Parse the int
