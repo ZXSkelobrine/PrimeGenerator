@@ -54,6 +54,10 @@ public class PrimeGenerator {
 	 * numbers
 	 */
 	private int globalCounter;
+	/**
+	 * This is the index of the current prime. (Eg if it is generating 10 primes
+	 * and it is on the 5th this will equal 5)
+	 */
 	private int currentPrimeSearch;
 
 	/**
@@ -71,6 +75,9 @@ public class PrimeGenerator {
 	 * This stores whether the program should log to a file.
 	 */
 	private boolean isFileLogEnabled;
+	/**
+	 * This stores whether the system has been canceled
+	 */
 	private boolean isCanceled;
 
 	/**
@@ -120,7 +127,13 @@ public class PrimeGenerator {
 	 * This is the logging area used for the counter output
 	 */
 	private JTextComponent logLocalCounter;
+	/**
+	 * This is the logging area used for the global counter output
+	 */
 	private JTextComponent logGlobalCounter;
+	/**
+	 * This is the logging area used for the current prime.
+	 */
 	private JTextComponent logCurrentPrime;
 
 	/**
@@ -412,6 +425,13 @@ public class PrimeGenerator {
 		}
 	}
 
+	/**
+	 * This method will callback to the started
+	 * 
+	 * @param logType
+	 *            - The log type.
+	 * @deprecated
+	 */
 	@Deprecated
 	private void callbackLog(LogType logType) {
 		if (isCallbackEnabled) {
@@ -471,10 +491,20 @@ public class PrimeGenerator {
 		if (isTxtLogEnabled[0]) logArea.setCaretPosition(logArea.getText().length());
 	}
 
+	/**
+	 * This will generate the message when the search starts.
+	 * 
+	 * @return {@link String} - The begin message
+	 */
 	private String generateBeginMessage() {
 		return "[Gen - ENAB] Attempting to generate " + generations + " prime number" + (generations > 1 ? "s" : "") + " with " + length + " digits. This test is being run by: '" + System.getProperty("user.name") + "' at: '" + new SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().getTime()) + "' on: '" + new SimpleDateFormat("dd.MM.yyyy").format(Calendar.getInstance().getTime()) + "'";
 	}
 
+	/**
+	 * This will generate the message when the program tries a prime starts.
+	 * 
+	 * @return {@link String} - The try message
+	 */
 	private String generateTryMessage() {
 		int chount = currentNumber.toString().length();
 		String extension = "th";
@@ -484,15 +514,30 @@ public class PrimeGenerator {
 		return "[Gen - TRYS] This is the " + localCounter + extension + " attempt to find a prime number with " + length + " digits. The current number is: " + currentNumber + " (This number is " + chount + " characters long. This is a " + (chount == length ? "good" : "bad") + " result). This number " + (isCurrentPrime ? "IS" : "IS NOT") + " a prime number.";
 	}
 
+	/**
+	 * This will generate the message when the program finds a prime.
+	 * 
+	 * @return {@link String} - The semi-final message
+	 */
 	private String generateSemiFinalMessage() {
 		int chount = currentNumber.toString().length();
 		return "\n[Gen - SEMI] It took " + localCounter + " attempts to find a prime number with " + length + " digits. That prime number was: " + currentNumber + " (This prime number ended up being " + chount + " characters long. This is a " + (chount == length ? "good" : "bad") + " result) and according to the system it took approximatly " + ((currentTime - startTime) / 1000) + " seconds (" + (currentTime - startTime) + " millis)";
 	}
 
+	/**
+	 * This will generate the message when the program completes its search.
+	 * 
+	 * @return {@link String} - The final message
+	 */
 	private String generateFinalMessage() {
 		return "\n[Gen - FULL] It took " + globalCounter + " attempts to find " + generations + " prime number" + (generations > 1 ? "s" : "") + " with " + length + " digits. According to the system this complete opperation took approximatly " + ((finalEndTime - startTime) / 1000) + " seconds or " + (finalEndTime - startTime) + " milliseconds.";
 	}
 
+	/**
+	 * This method will generate a random number up to the length that was given
+	 * 
+	 * @return {@link String} - The number
+	 */
 	private String generateRandomNumber() {
 		StringBuilder builder = new StringBuilder();//Create a string builder for forming the number
 		for (int i = 0; i != (length - 1); i++) {//Until i equals the length
@@ -502,11 +547,21 @@ public class PrimeGenerator {
 		return builder.toString();//Then return the string version of the number
 	}
 
+	/**
+	 * This method will test if the current number is a prime.
+	 */
 	private void testPrime() {
 		isCurrentPrime = currentNumber.isProbablePrime(Integer.MAX_VALUE);
 		currentTime = System.currentTimeMillis();
 	}
 
+	/**
+	 * This will attempt to form the arguments into an array for callback.
+	 * 
+	 * @param isFinal
+	 *            - If it is the final log.
+	 */
+	@Deprecated
 	private void formArgumentsForFinalLog(boolean isFinal) {
 		String[] split = callback_format.split("|");
 		Object[] returned = new Object[split.length];//Also known as Object[] illBeBack = new Object[split.length];
@@ -560,6 +615,11 @@ public class PrimeGenerator {
 		callback_arguments = returned;
 	}
 
+	/**
+	 * This will attempt to callback to the caller.
+	 * 
+	 * @deprecated
+	 */
 	@Deprecated
 	private void callbackToCaller() {
 		//		try {
@@ -569,16 +629,33 @@ public class PrimeGenerator {
 		//		}
 	}
 
+	/**
+	 * This will attempt to write the given string to file.
+	 * 
+	 * @param message
+	 *            - The message to write to file.
+	 */
 	private void writeToFile(String message) {
 		writeToStdOut(message);
 		outputWriter.println(message);
 		outputWriter.flush();
 	}
 
+	/**
+	 * This will attempt to write the given string to the standard output.
+	 * 
+	 * @param message
+	 *            - The message
+	 */
 	private void writeToStdOut(String message) {
 		System.out.println(message);
 	}
 
+	/**
+	 * This will generate an odd number using the random object
+	 * 
+	 * @return {@link Integer}[In primitive form] - The odd number
+	 */
 	private int generatePsudorandomOddNumber() {
 		int value = 0;
 		while (value % 2 == 0) {
